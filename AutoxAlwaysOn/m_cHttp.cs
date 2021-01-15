@@ -20,7 +20,7 @@ namespace AutoxAlwaysOn
         {
             try
             {
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(Url + (postDataStr == "" ? "" : "?") + postDataStr);
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(Url + (string.IsNullOrWhiteSpace(postDataStr) ? "" : "?") + postDataStr);
                 request.Method = "GET";
                 request.ContentType = "text/html;charset=UTF-8";
 

@@ -11,6 +11,7 @@ namespace AutoxAlwaysOn
         public string m_sName { get; set; }
         public string m_sHttp { get; set; }
         public int m_sSeconds { get; set; }
+        public string m_sArgs { get; set; }
         public DateTime m_dtLastResq { get; set; }
     }
 }

@@ -31,13 +31,20 @@ namespace AutoxAlwaysOn
                             m_deflHTTP.Add(_m_mHTTP);
                         }
                     }
-                    ///得到对应的激活频率秒数
+
                     foreach (m_mHTTP item in m_deflHTTP)
                     {
-                        string m_sName = $"RATESEC{item.m_sName}";
-                        if (m_dDic.ContainsKey(m_sName))
+                        ///得到对应的激活频率秒数
+                        string m_sRecName = $"RATESEC{item.m_sName}";
+                        if (m_dDic.ContainsKey(m_sRecName))
                         {
-                            item.m_sSeconds = int.Parse(m_dDic[m_sName]);
+                            item.m_sSeconds = int.Parse(m_dDic[m_sRecName]);
+                        }
+                        ///得到对应的激活所需参数
+                        string m_sArgsName = $"ARGS{item.m_sName}";
+                        if (m_dDic.ContainsKey(m_sArgsName))
+                        {
+                            item.m_sArgs = m_dDic[m_sArgsName];
                         }
                     }
                     ///赋值返回
