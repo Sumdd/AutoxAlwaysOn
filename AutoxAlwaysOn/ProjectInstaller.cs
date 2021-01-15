@@ -1,18 +1,17 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
-using System.Drawing;
+using System.Configuration.Install;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace AutoxAlwaysOn
 {
-    public partial class Form1 : Form
+    [RunInstaller(true)]
+    public partial class ProjectInstaller : System.Configuration.Install.Installer
     {
-        public Form1()
+        public ProjectInstaller()
         {
             InitializeComponent();
         }
