@@ -98,7 +98,12 @@ namespace AutoxAlwaysOn
                                 if (DateTime.Compare(item.m_dtLastResq.AddSeconds(item.m_sSeconds), DateTime.Now) <= 0)
                                 {
                                     string m_sRespStr = m_cHttp.HttpGet(item.m_sHttp);
-                                    Log.Instance.Error($"[AutoxAlwaysOn][m_cAuto][m_fTimerElapsed][foreach.m_mHTTP][{m_sRespStr}]");
+                                    item.m_dtLastResq = DateTime.Now.AddSeconds(item.m_sSeconds);
+                                    Log.Instance.Success($"[AutoxAlwaysOn][m_cAuto][m_fTimerElapsed][foreach.m_mHTTP][{item.m_sHttp}:{m_sRespStr}]");
+                                }
+                                else
+                                {
+                                    Log.Instance.Warn($"[AutoxAlwaysOn][m_cAuto][m_fTimerElapsed][foreach.m_mHTTP][not send:{item.m_sHttp},sec:{item.m_sSeconds},last:{item.m_dtLastResq.ToString("yyyy-MM-dd HH:mm:ss")}]");
                                 }
                             }
                             catch (Exception ex)
