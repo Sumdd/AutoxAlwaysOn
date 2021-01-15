@@ -28,6 +28,7 @@ namespace AutoxAlwaysOn
                             _m_mHTTP.m_sHttp = item.Value;
                             _m_mHTTP.m_sSeconds = 60;
                             _m_mHTTP.m_dtLastResq = DateTime.MinValue;
+                            m_deflHTTP.Add(_m_mHTTP);
                         }
                     }
                     ///得到对应的激活频率秒数
