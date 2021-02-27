@@ -22,14 +22,18 @@ namespace AutoxAlwaysOn
         protected override void OnStart(string[] args)
         {
             // TODO: 在此处添加代码以启动服务。
-            m_cAuto.m_fStart();
+            m_cAuto.m_fHTTPStart();
+            m_cAuto.m_fCMDStart();
+            m_cAuto.m_fBATStart();
         }
 
         protected override void OnStop()
         {
             // TODO: 在此处添加代码以执行停止服务所需的关闭操作。
             m_sService.m_bStop = true;
-            m_cAuto.m_fStop();
+            m_cAuto.m_fHTTPStop();
+            m_cAuto.m_fCMDStop();
+            m_cAuto.m_fBATStop();
         }
     }
 }

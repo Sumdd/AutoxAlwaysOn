@@ -14,4 +14,11 @@ namespace AutoxAlwaysOn
         public string m_sArgs { get; set; }
         public DateTime m_dtLastResq { get; set; }
     }
+
+    public class m_mCMD
+    {
+        public string m_sName { get; set; }
+        public List<string> m_lCMD { get; set; }
+        public string m_sDoWay { get; set; }
+    }
 }
