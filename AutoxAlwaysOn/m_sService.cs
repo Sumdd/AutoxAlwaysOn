@@ -23,8 +23,7 @@ namespace AutoxAlwaysOn
         {
             // TODO: 在此处添加代码以启动服务。
             m_cAuto.m_fHTTPStart();
-            m_cAuto.m_fCMDStart();
-            m_cAuto.m_fBATStart();
+            m_cAuto.m_fJobStart();
         }
 
         protected override void OnStop()
@@ -32,8 +31,7 @@ namespace AutoxAlwaysOn
             // TODO: 在此处添加代码以执行停止服务所需的关闭操作。
             m_sService.m_bStop = true;
             m_cAuto.m_fHTTPStop();
-            m_cAuto.m_fCMDStop();
-            m_cAuto.m_fBATStop();
+            m_cAuto.m_fJobStop();
         }
     }
 }

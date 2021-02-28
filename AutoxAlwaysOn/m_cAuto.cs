@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Quartz;
+using Quartz.Impl;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -13,9 +15,8 @@ namespace AutoxAlwaysOn
     /// </summary>
     public class m_cAuto
     {
+        private static IScheduler scheduler;
         private static Timer m_pHTTPTimer = null;
-        private static Timer m_pCMDTimer = null;
-        private static Timer m_pBATTimer = null;
 
         #region ***HTTP已完成无需改动
 
@@ -133,189 +134,39 @@ namespace AutoxAlwaysOn
 
         #endregion
 
-        #region ***CMD正在做
-
-        #region ***CMD开启
-        public static void m_fCMDStart()
+        #region ***Quartz执行CMD、BAT计划任务即可
+        public static void m_fJobStart()
         {
-            try
+            if (scheduler == null) scheduler = StdSchedulerFactory.GetDefaultScheduler();
+            if (!scheduler.IsStarted) scheduler.Start();
+
+            ///循环载入任务
+            if (m_cSettings.m_lBAT != null)
             {
-                ///实例化
-                if (m_cAuto.m_pCMDTimer == null) m_cAuto.m_pCMDTimer = new Timer();
-
-                ///定时器秒数
-                int m_uSeconds = 0;
-                int.TryParse(m_cSettings.m_dKeyValue["m_uSeconds"], out m_uSeconds);
-                if (m_uSeconds <= 0) m_uSeconds = 15;
-
-                m_cAuto.m_pCMDTimer.Interval = 1000 * m_uSeconds;
-                m_cAuto.m_pCMDTimer.Elapsed += new ElapsedEventHandler(m_cAuto.m_fCMDTimerElapsed);
-                Log.Instance.Success($"[AutoxAlwaysOn][m_cAuto][m_fCMDStart][auto timer start]");
-
-                new System.Threading.Thread(() =>
+                foreach (m_mBAT _m_mBAT in m_cSettings.m_lBAT)
                 {
-                    m_cAuto.m_fCMDTimerElapsed(null, null);
-
-                }).Start();
-            }
-            catch (Exception ex)
-            {
-                Log.Instance.Error($"[AutoxAlwaysOn][m_cAuto][m_fCMDStart][Exception][{ex.Message}]");
-            }
-        }
-        #endregion
-
-        #region ***CMD停止
-        public static void m_fCMDStop()
-        {
-            try
-            {
-                if (m_cAuto.m_pCMDTimer != null)
-                {
-                    m_cAuto.m_pCMDTimer.Stop();
-                    m_cAuto.m_pCMDTimer.Dispose();
-                    m_cAuto.m_pCMDTimer = null;
+                    try
+                    {
+                        IJobDetail job = JobBuilder.Create<m_cQuartzJobAll>().Build();
+                        ITrigger trigger = TriggerBuilder.Create()
+                          .WithIdentity(_m_mBAT.m_sName, m_cQuartzJobModel.GROUP_BAT)
+                          .WithCronSchedule(_m_mBAT.m_sDoWay)
+                          .Build();
+                        scheduler.ScheduleJob(job, trigger);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Instance.Success($"[AutoxAlwaysOn][m_cAuto][m_fJobStart][创建“{_m_mBAT.m_sName}”任务计划时错误:{ex.Message}]");
+                    }
                 }
-                Log.Instance.Success($"[AutoxAlwaysOn][m_cAuto][m_fCMDStop][auto timer stop]");
-            }
-            catch (Exception ex)
-            {
-                Log.Instance.Error($"[AutoxAlwaysOn][m_cAuto][m_fCMDStop][Exception][{ex.Message}]");
             }
         }
-        #endregion
 
-        #region ***CMD重启
-        public static void m_fCMDRestart()
+        public static void m_fJobStop()
         {
-            m_cAuto.m_fCMDStop();
-            m_cAuto.m_fCMDStart();
-            Log.Instance.Success($"[AutoxAlwaysOn][m_cAuto][m_fCMDRestart][auto timer restart]");
+            if (scheduler == null) return;
+            if (!scheduler.IsShutdown) scheduler.Shutdown();
         }
-        #endregion
-
-        #region ***CMD计时器动作
-        /// <summary>
-        /// 计时器动作
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private static void m_fCMDTimerElapsed(object sender, ElapsedEventArgs e)
-        {
-            try
-            {
-                //先停止计时器
-                m_cAuto.m_pCMDTimer.Stop();
-                //执行同步操作
-                {
-                }
-                //再启动
-                m_cAuto.m_pCMDTimer.Start();
-            }
-            catch (Exception ex)
-            {
-                Log.Instance.Error($"[AutoxAlwaysOn][m_cAuto][m_fCMDTimerElapsed][Exception][{ex.Message}]");
-                Log.Instance.Debug(ex);
-                System.Threading.Thread.Sleep(1000 * 10);
-                Log.Instance.Error($"[AutoxAlwaysOn][m_cAuto][m_fCMDTimerElapsed][Exception][自动外呼同步计时器遇到错误10秒后重启]");
-                m_cAuto.m_fCMDRestart();
-            }
-        }
-        #endregion
-
-        #endregion
-
-        #region ***BAT无正在做
-
-        #region ***BAT开启
-        public static void m_fBATStart()
-        {
-            try
-            {
-                ///实例化
-                if (m_cAuto.m_pBATTimer == null) m_cAuto.m_pBATTimer = new Timer();
-
-                ///定时器秒数
-                int m_uSeconds = 0;
-                int.TryParse(m_cSettings.m_dKeyValue["m_uSeconds"], out m_uSeconds);
-                if (m_uSeconds <= 0) m_uSeconds = 15;
-
-                m_cAuto.m_pBATTimer.Interval = 1000 * m_uSeconds;
-                m_cAuto.m_pBATTimer.Elapsed += new ElapsedEventHandler(m_cAuto.m_fBATTimerElapsed);
-                Log.Instance.Success($"[AutoxAlwaysOn][m_cAuto][m_fBATStart][auto timer start]");
-
-                new System.Threading.Thread(() =>
-                {
-                    m_cAuto.m_fBATTimerElapsed(null, null);
-
-                }).Start();
-            }
-            catch (Exception ex)
-            {
-                Log.Instance.Error($"[AutoxAlwaysOn][m_cAuto][m_fBATStart][Exception][{ex.Message}]");
-            }
-        }
-        #endregion
-
-        #region ***BAT停止
-        public static void m_fBATStop()
-        {
-            try
-            {
-                if (m_cAuto.m_pBATTimer != null)
-                {
-                    m_cAuto.m_pBATTimer.Stop();
-                    m_cAuto.m_pBATTimer.Dispose();
-                    m_cAuto.m_pBATTimer = null;
-                }
-                Log.Instance.Success($"[AutoxAlwaysOn][m_cAuto][m_fBATStop][auto timer stop]");
-            }
-            catch (Exception ex)
-            {
-                Log.Instance.Error($"[AutoxAlwaysOn][m_cAuto][m_fBATStop][Exception][{ex.Message}]");
-            }
-        }
-        #endregion
-
-        #region ***BAT重启
-        public static void m_fBATRestart()
-        {
-            m_cAuto.m_fBATStop();
-            m_cAuto.m_fBATStart();
-            Log.Instance.Success($"[AutoxAlwaysOn][m_cAuto][m_fBATRestart][auto timer restart]");
-        }
-        #endregion
-
-        #region ***BAT计时器动作
-        /// <summary>
-        /// 计时器动作
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private static void m_fBATTimerElapsed(object sender, ElapsedEventArgs e)
-        {
-            try
-            {
-                //先停止计时器
-                m_cAuto.m_pBATTimer.Stop();
-                //执行同步操作
-                {
-
-                }
-                //再启动
-                m_cAuto.m_pBATTimer.Start();
-            }
-            catch (Exception ex)
-            {
-                Log.Instance.Error($"[AutoxAlwaysOn][m_cAuto][m_fBATTimerElapsed][Exception][{ex.Message}]");
-                Log.Instance.Debug(ex);
-                System.Threading.Thread.Sleep(1000 * 10);
-                Log.Instance.Error($"[AutoxAlwaysOn][m_cAuto][m_fBATTimerElapsed][Exception][自动外呼同步计时器遇到错误10秒后重启]");
-                m_cAuto.m_fBATRestart();
-            }
-        }
-        #endregion
-
         #endregion
     }
 }

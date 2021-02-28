@@ -15,10 +15,10 @@ namespace AutoxAlwaysOn
         public DateTime m_dtLastResq { get; set; }
     }
 
-    public class m_mCMD
+    public class m_mBAT
     {
         public string m_sName { get; set; }
-        public List<string> m_lCMD { get; set; }
+        public List<string> m_lBAT { get; set; }
         public string m_sDoWay { get; set; }
     }
 }
