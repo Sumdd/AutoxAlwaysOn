@@ -22,7 +22,7 @@ namespace AutoxAlwaysOn
         private Log()
         {
             log4net.Config.XmlConfigurator.Configure();
-            log4 = log4net.LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+            log4 = log4net.LogManager.GetLogger("LogLogger");
         }
         /// <summary>
         /// 私人静态实例
